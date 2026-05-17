@@ -212,6 +212,11 @@ packages=(
     "com.android.hotspot2.osulogin"
     "com.android.dynsystem"
     "com.qualcomm.wfd.service"
+    "com.android.internal.display.cutout.emulation.corner"
+    "com.android.internal.display.cutout.emulation.double"
+    "com.android.internal.display.cutout.emulation.tall"
+    "com.android.internal.display.cutout.emulation.waterfall"
+    "com.android.internal.display.cutout.emulation.hole"
 )
 
 # Counter
