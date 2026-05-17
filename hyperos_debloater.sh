@@ -1,0 +1,247 @@
+#!/bin/bash
+
+echo "======================================"
+echo "  Debloat Redmi Note 12 - HyperOS 2  "
+echo "======================================"
+echo ""
+
+# Cek koneksi ADB
+if ! adb devices | grep -q "device$"; then
+    echo "❌ Tidak ada device ADB yang terkoneksi!"
+    echo "   Jalankan: adb connect 192.168.2.181:PORT"
+    exit 1
+fi
+
+echo "✅ Device terdeteksi, memulai debloat..."
+echo ""
+
+packages=(
+    # === ANDROID BLOATWARE ===
+    "android.autoinstalls.config.Xiaomi.model"
+    "com.android.apps.tag"
+    "com.android.backupconfirm"
+    "com.android.bips"
+    "com.android.bluetoothmidiservice"
+    "com.android.bookmarkprovider"
+    "com.android.calllogbackup"
+    "com.android.cellbroadcastreceiver"
+    "com.android.cellbroadcastreceiver.overlay.common"
+    "com.android.cts.ctsshim"
+    "com.android.cts.priv.ctsshim"
+    "com.android.deskclock"
+    "com.android.dreams.basic"
+    "com.android.dreams.phototable"
+    "com.android.egg"
+    "com.android.emergency"
+    "com.android.hotwordenrollment.okgoogle"
+    "com.android.hotwordenrollment.xgoogle"
+    "com.android.musicfx"
+    "com.android.nfc"
+    "com.android.ons"
+    "com.android.printspooler"
+    "com.android.providers.blockednumber"
+    "com.android.providers.calendar"
+    "com.android.providers.partnerbookmarks"
+    "com.android.providers.userdictionary"
+    "com.android.sharedstoragebackup"
+    "com.android.stk"
+    "com.android.theme.font.notoserifsource"
+    "com.android.traceur"
+    "com.android.vpndialogs"
+    "com.android.wallpaper.livepicker"
+    "com.android.wallpaperbackup"
+    "com.android.wallpapercropper"
+
+    # === FACEBOOK ===
+    "com.facebook.appmanager"
+    "com.facebook.services"
+    "com.facebook.system"
+
+    # === FIDO / FINGERPRINT TEST ===
+    "com.fido.asm"
+    "com.fingerprints.sensortesttool"
+    "com.goodix.gftest"
+
+    # === GOOGLE BLOATWARE ===
+    "com.google.android.apps.docs"
+    "com.google.android.apps.messaging"
+    "com.google.android.apps.restore"
+    "com.google.android.apps.safetyhub"
+    "com.google.android.apps.subscriptions.red"
+    "com.google.android.apps.tachyon"
+    "com.google.android.apps.turbo"
+    "com.google.android.apps.wellbeing"
+    "com.google.android.apps.youtube.music"
+    "com.google.android.as"
+    "com.google.android.feedback"
+    "com.google.android.gms.location.history"
+    "com.google.android.inputmethod.latin"
+    "com.google.android.marvin.talkback"
+    "com.google.android.onetimeinitializer"
+    "com.google.android.partnersetup"
+    "com.google.android.printservice.recommendation"
+    "com.google.android.syncadapters.calendar"
+    "com.google.android.tts"
+    "com.google.android.videos"
+    "com.google.android.youtube"
+
+    # === LONGCHEER / QUALCOMM ===
+    "com.longcheertel.AutoTest"
+    "com.qti.qualcomm.datastatusnotification"
+    "com.qti.qualcomm.deviceinfo"
+    "com.qti.xdivert"
+    "com.qualcomm.atfwd"
+    "com.qualcomm.qti.confdialer"
+    "com.qualcomm.qti.remoteSimlockAuth"
+    "com.qualcomm.qti.uim"
+    "com.qualcomm.timeservice"
+    "com.quicinc.voice.activation"
+
+    # === MI / MIUI BLOATWARE ===
+    "com.mi.android.globalFileexplorer"
+    "com.mi.globalbrowser"
+    "com.mi.globallayout"
+    "com.milink.service"
+    "com.miui.analytics"
+    "com.miui.backup"
+    "com.miui.bugreport"
+    "com.miui.cleaner"
+    "com.miui.cloudbackup"
+    "com.miui.cloudservice"
+    "com.miui.daemon"
+    "com.miui.face"
+    "com.miui.fm"
+    "com.miui.fmservice"
+    "com.miui.freeform"
+    "com.miui.gallery"
+    "com.miui.global.packageinstaller"
+    "com.miui.micloudsync"
+    "com.miui.miservice"
+    "com.miui.miwallpaper.overlay"
+    "com.miui.miwallpaper.overlay.customize"
+    "com.miui.msa.global"
+    "com.miui.phone.carriers.overlay.h3g"
+    "com.miui.phone.carriers.overlay.vodafone"
+    "com.miui.phrase"
+    "com.miui.qr"
+    "com.miui.videoplayer"
+    "com.miui.yellowpage"
+
+    # === XIAOMI ACCOUNT & SERVICES ===
+    "com.xiaomi.account"
+    "com.xiaomi.barrage"
+    "com.xiaomi.calendar"
+    "com.xiaomi.discover"
+    "com.xiaomi.glgm"
+    "com.xiaomi.micloud.sdk"
+    "com.xiaomi.mipicks"
+    "com.xiaomi.mircs"
+    "com.xiaomi.payment"
+    "com.xiaomi.simactivate.service"
+    "com.xiaomi.xmsfkeeper"
+
+    # === MISC ===
+    "org.ifaa.aidl.manager"
+    "com.google.android.apps.maps"
+    "com.android.thememanager "
+    "com.mi.globalminusscreen"
+    "com.amazon.appmanager"
+    "com.google.android.apps.photos"
+    "com.google.android.gm"
+    "com.google.android.googlequicksearchbox"
+    "com.google.android.apps.healthdata"
+    "com.google.android.healthconnect.controller"
+    "com.google.android.projection.gearhead"
+    "com.miui.android.fashiongallery"
+    "com.miui.player"
+    "com.miui.extraphoto"
+    "com.mi.global.shop"
+    "com.miui.thirdappassistant"
+    "com.google.android.setupwizard"
+    "com.google.android.adservices.api"
+    "com.google.mainline.adservices"
+    "com.google.mainline.telemetry"
+    "com.google.android.ondevicepersonalization.services"
+    "com.google.android.federatedcompute"
+    "com.google.android.accessibility.switchaccess"
+    "com.miui.misound"
+    "com.miui.audiomonitor"
+    "com.miui.aod"
+    "com.miui.virtualsim"
+    "com.miui.vsimcore"
+    "com.xiaomi.aiasst.vision"
+    "com.bsp.logmanager"
+    "com.google.ambient.streaming"
+    "com.google.android.gms.supervision"
+    "com.google.android.health.connect.backuprestore"
+    "com.google.android.devicelockcontroller"
+    "com.google.android.overlay.devicelockcontroller"
+    "com.longcheertel.cit"
+    "com.longcheertel.sarauth"
+    "com.microsoftsdk.crossdeviceservicebroker"
+    "com.miui.misightservice"
+    "com.miui.rom"
+    "com.novatek.novavis"
+    "com.qualcomm.qti.devicestatisticsservice"
+    "com.qualcomm.qti.ridemodeaudio"
+    "com.qualcomm.qti.workloadclassifier"
+    "com.wdstechnology.android.kryten"
+    "com.xiaomi.cameramind"
+    "com.xiaomi.aicr"
+    "com.xiaomi.ugd"
+    "com.xiaomi.mtb"
+    "com.miui.mediaviewer"
+    "com.mi.appfinder"
+    "com.miuix.editor"
+    "com.qualcomm.location"
+    "com.xiaomi.finddevice"
+    "com.google.android.appsearch.apk"
+    "com.google.android.sdksandbox"
+    "com.android.DeviceAsWebcam"
+    "com.android.devicediagnostics"
+    "com.android.managedprovisioning"
+    "com.android.managedprovisioning.overlay"
+    "com.android.soundpicker"
+    "com.android.avatarpicker"
+    "com.qti.snapdragon.qdcm_ff"
+    "com.miui.securityadd"
+    "com.preff.kb.xm"
+    "com.android.companiondevicemanager"
+    "com.android.companiondevicemanager.auto_generated_characteristics_rro"
+    "com.android.htmlviewer"
+    "com.android.hotspot2.osulogin"
+    "com.android.dynsystem"
+    "com.qualcomm.wfd.service"
+)
+
+# Counter
+success=0
+failed=0
+not_found=0
+
+for package in "${packages[@]}"; do
+    # Skip baris komentar
+    [[ "$package" == \#* ]] && continue
+    [[ -z "$package" ]] && continue
+
+    result=$(adb shell pm uninstall --user 0 "$package" 2>&1)
+
+    if echo "$result" | grep -q "Success"; then
+        echo "✅ $package"
+        ((success++))
+    elif echo "$result" | grep -q "not installed"; then
+        echo "⚪ $package (tidak ada)"
+        ((not_found++))
+    else
+        echo "❌ $package (gagal)"
+        ((failed++))
+    fi
+done
+
+echo ""
+echo "======================================"
+echo "  Debloat selesai!"
+echo "  ✅ Berhasil  : $success"
+echo "  ❌ Gagal     : $failed"
+echo "  ⚪ Tidak ada : $not_found"
+echo "======================================"
